@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Built for Python 3.7.3
 # Take any input file and run it through the best command to losslessly optimize file size.
+# https://github.com/Lemntum/optimize
 
 # DEPENDENCIES:
 #   python3
