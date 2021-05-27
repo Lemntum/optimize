@@ -1,6 +1,6 @@
 # Introduction
 
-The `optimize.py` script automates the proccess of losslessly optimizing the size of of many types of filess. It does this by tying together the functionality of various external programs to make the process easier.
+The `optimize.py` script automates the process of losslessly optimizing the size of of many types of files. It does this by tying together the functionality of various external programs to make the process easier.
 
 Currently optimizes:
 
