@@ -26,7 +26,7 @@ Read the help info for usage information.
 
 # Linux Install
 
-First install the dependencies. Then the script can be run as-is through the Python 3 interpreter.
+Download the script and install the dependencies. Then the script can be run as-is through the Python 3 interpreter.
 
 For example, on Debian:
 
@@ -96,7 +96,7 @@ Installing on Windows is simple, but the process of installing dependencies is n
 
 First, install the Python interpreter. Then install the necessary dependencies.
 
-Once installer, the script can be run using the python interpreter. It is suggested to run the script through PowerShell so you can easily use wildcards as input.
+Once installer, the script can be downloaded and run using the Python interpreter.
 
 ```
 py -3 optimize.py [files]
@@ -117,11 +117,6 @@ Most things will need to be installed in a variety of ways. Details are describe
 
 **WARNING:** Please read [Updating the Windows PATH](#updating-the-windows-path) before updating your PATH.
 
-<!--
-### Using the install script
-
-The script `windows-install-dependancies.py` will attempt to retrieve and install all the dependancies. However, it has not been well tested and may be prone to failure. Additionally, it does not ensure that the most up-to-date version of each dependancy is installed.
--->
 
 ### Manual Installation
 
@@ -231,21 +226,6 @@ Direct Source: https://storage.googleapis.com/downloads.webmproject.org/releases
     * `%APPDATALOCAL%\libwebp\bin\cwebp.exe`
 
 
-
-<!--
-## FFmpeg
-
-FFmpeg is not yet used by the optimize script.
-
-https://www.wikihow.com/Install-FFmpeg-on-Windows
-
-1. Download from here: https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z
-2. Extract
-3. Move and rename extracted folder
-4. Add new directory to the $PATH (setx /m PATH "C:\Program Files\ffmpeg\bin;%PATH%")
-5. Remember to execute the name with a .exe on the end
--->
-
 #### flac
 
 Source: https://xiph.org/flac/
@@ -283,22 +263,6 @@ The [jpegoptim](https://github.com/tjko/jpegoptim) project does not include prec
 4. Rename the extracted folder to be named `jpegoptim`. The final structure should be either:
     * `C:\Program Files\jpegoptim\jpegoptim.exe`
     * `%APPDATALOCAL%\jpegoptim\jpegoptim.exe`
-
-
-<!--
-### Mozjpeg
-
-https://github.com/mozilla/mozjpeg
-
-Improved JPEG algorithm. May be superceded by [JPEG XL](https://en.wikipedia.org/wiki/JPEG_XL).
-
-### JPEG XL (JXL)
-
-* https://jpeg.org/jpegxl/
-* https://gitlab.com/wg1/jpeg-xl
-
-Supported by imagemagick. https://imagemagick.org/script/formats.php#supported
--->
 
 
 #### optipng
@@ -393,16 +357,6 @@ The `setx` command *must* be run using cmd; **not** PowerShell. If run from Powe
 You likely will not have issues if running `setx` manually from CMD.
 
 <!--
-#### Other Methods
-
-If you do encounter issues with the above methods not working, try using another method to update the PATH.
-
-The safer way to edit the PATH may be directly throught the Registry. This can only ever be a temporary fix, as the PATH used by the registry is copied out from some mystery location and will be reset when the computer restarts. It *must* be set through the shell.
-* https://stackoverflow.com/questions/35246896/adding-a-directory-to-the-system-path-variable-through-registry
-* https://stackoverflow.com/questions/15434521/how-to-update-path-variable-permanently-using-php
-* https://stackoverflow.com/questions/1919125/programmatically-adding-a-directory-to-windows-path-environment-variable?rq=1
--->
-<!--
 #### Automation Issues
 
 NSIS installer will truncate the PATH if it is over 1024 bytes in length. (This limitation is present in the `setx` command as well.)
@@ -418,7 +372,7 @@ Someone wrote a special tool just for it. https://github.com/awaescher/PathEd
 Even DotNet struggles with it. https://github.com/dotnet/runtime/issues/1442
 -->
 
-#### Troubleshooting
+#### Restoring PATH
 
 If you overwrite your existing PATH information, other tools may stop working. 
 
@@ -428,13 +382,6 @@ On Windows 7, the default PATH is:
 
 If you had Python installed, you can run the installer again to update the PATH for Python.
 
-
-<!--
-
-My PATH is:
-
-	%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;C:\Program Files\dotnet\;C:\Program Files\ffmpeg\bin;C:\Program Files\flac\win64
--->
 <!--
 ### Remove items from the Windows PATH
 
