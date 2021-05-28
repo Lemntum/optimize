@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # Built for Python 3.7.3
 # Take any input file and run it through the best command to losslessly optimize file size.
-# https://github.com/Lemntum/optimize
 
 # DEPENDENCIES:
 #   python3
@@ -573,13 +572,13 @@ def get_mimetype(file) -> str:
 
 
 def optimize_file(*files, 
-		optimize_7z_contents=False, 
+		#optimize_7z_contents=False, 
 		convert_gzip=False, 
 		delete_thumbnails=False,
 		strip_jpg=False, 
 		convert_png=False, 
 		convert_wav=False, 
-		optimize_zip_contents=False, 
+		#optimize_zip_contents=False, 
 		recursion=False):
 
 	for file in files:
@@ -617,12 +616,12 @@ def optimize_file(*files,
 					]
 				
 				optimize_file(*new_files,
-					optimize_7z_contents=optimize_7z_contents,
+					#optimize_7z_contents=optimize_7z_contents,
 					convert_gzip=convert_gzip,
 					strip_jpg=strip_jpg,
 					convert_png=convert_png,
 					convert_wav=convert_wav,
-					optimize_zip_contents=optimize_zip_contents,
+					#optimize_zip_contents=optimize_zip_contents,
 					recursion=recursion
 					)
 			else:
@@ -658,12 +657,12 @@ if __name__ == "__main__":
 	
 	# Pass all required argument options to the optimize function so global vars are not needed.
 	optimize_file(*args.files, 
-		optimize_7z_contents=args.optimize_7z_contents,
+		#optimize_7z_contents=args.optimize_7z_contents,
 		convert_gzip=args.convert_gzip,
 		strip_jpg=args.strip_jpg,
 		convert_png=args.convert_png,
 		convert_wav=args.convert_wav,
-		optimize_zip_contents=args.optimize_zip_contents,
+		#optimize_zip_contents=args.optimize_zip_contents,
 		recursion=args.use_recursion
 		)
 		
