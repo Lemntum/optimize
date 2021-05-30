@@ -19,6 +19,7 @@
 #   file
 
 from pathlib import Path
+from shutil import rmtree
 from sys import argv, exit, platform
 from subprocess import run
 import gzip
@@ -72,12 +73,19 @@ def define_arguments():
 		action="store_true",
 		dest="convert_wav")
 	
-	# Delete thumbnails from ODT and similar files where it is unnecessary.
-	parser.add_argument("--delete_thumbnails",
-		help="Delete unnecessary thumbnails embedded in ODT files. (Does nothing right now.)",
-		action="store_true",
-		dest="delete_thumbnails"
-		)
+	## Delete thumbnails from ODT and similar files where it is unnecessary.
+	#parser.add_argument("--delete-thumbnails",
+		#help="Delete unnecessary thumbnails embedded in ODT files. (Does nothing right now.)",
+		#action="store_true",
+		#dest="delete_thumbnails"
+		#)
+
+	## Ignore possible compatibility issues when modifying file formats.
+	#parser.add_argument("--ignore-compatibility",
+		#help="Ignore possible compatibility issues when modifying file formats, prioritizing file size. (e.g., empty directories will be deleted from OpenDoc files.)",
+		#action="store_true",
+		#dest="ignore_compatibility"
+		#)
 
 	#parser.add_argument("-7", "--optimize-7z-contents",
 		#help="Optimize contents of 7zip files before recompressing.",
@@ -254,18 +262,68 @@ def optimize_jpeg(file, strip_jpg=False):
 		run([jpegoptim, file])
 
 
-def optimize_odt(file, delete_thumbnail=False):
-	print(optimize_msg.format("OpenDocument Text"))
+def optimize_odf(file, delete_thumbnails=False, ignore_compatibility=False):
+	print(optimize_msg.format("OpenDocument Format file"))
 	
 	# Delete bulky thumbnail from file.
-	#if delete_thumbnail:
-		# Contents are inside a zip file. Extract it.
-		# Delete the auto-generated thumbnail image.
-		# Optimize image files and such embedded in the document?
-	
-	# Recompress it with ADVzip with .odt extension.
-	print("Optimizing ODT zip compression.")
+	#if delete_thumbnails:
+		#print("Removing thumbnail...")
+		
+		#print("Making temp...")
+		#temp_dir = str(Path(file).with_suffix("")) + "_TEMP"
+		
+		## Contents are inside a zip file. Extract it.
+		#run([x7z, 'x', file, f'-o{temp_dir}'])
+		
+		#print("Deleting ", str(Path(temp_dir, 'Thumbnails')))
+		
+		## Delete the contents of `./Thumbnails` directory and itself
+		#rmtree(Path(temp_dir, 'Thumbnails'))
+		
+		## Optimize image files and such embedded in the document?
+		## This is in `./Pictures`
+		## Do not use the user-set optimization options. If a file changes formats, the file index will lose it.
+		##optimize_file(files_in_directory, convert_png=False)
+		
+		#print("Recompressing...")
+		## Recompress to temp file
+		#temp_file = f'{file}.tmp'
+		
+		## Includes must use absolute path or 7zip will include leading folders as well.
+		#include = [ x.resolve() for x in list(Path(temp_dir).glob('*'))]
+		
+		#print(include)
+		
+		## TODO: Both archive managers change the mime-type to `application/zip` instead of `application/vnd.oasis.opendocument.text`
+		## https://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part3.html#__RefHeading__752791_826425813
+		## The mimetype file must be first in the archive and uncompressed.
+		## Consider: https://pypi.org/project/odfdo/
+		#if ignore_compatability:
+			## WARNING: Advzip will automatically exclude empty directories.
+			## This improves file size, but may affect standards compatibility.
+			#run([advzip, '-a4', temp_file, *include])
+		#else:
+			## Deflate is the only algerythm accepted in the OpenDoc standard.
+			#run([x7z, 'a', '-tzip', '-mm=deflate', '-x0', temp_file, *include])
+			#optimize_zip(temp_file)
+		
+		## Delete decompressed directory
+		##rmtree(temp_dir)
+		
+		##keep_smaller_file(file, temp_file)
+	#else:
+		# Recompress it with ADVzip
+	print("Optimizing zip compression.")
 	optimize_zip(file)
+
+
+def optimize_ms_office(file):
+	print(optimize_msg.format("MS Office File"))
+	
+	# Recompress it with ADVzip
+	print("Optimizing zip compression.")
+	optimize_zip(file)
+
 
 #def optimize_pdf(file):
 	# Probably use Ghostscript or something.
@@ -574,7 +632,8 @@ def get_mimetype(file) -> str:
 def optimize_file(*files, 
 		#optimize_7z_contents=False, 
 		convert_gzip=False, 
-		delete_thumbnails=False,
+		#delete_thumbnails=False,
+		#ignore_compatibility=False,
 		strip_jpg=False, 
 		convert_png=False, 
 		convert_wav=False, 
@@ -590,18 +649,31 @@ def optimize_file(*files,
 		
 		# Choose the correct optimizer to use.
 		# Python does not support case statements. :c
-		if   type == 'application/x-7z-compressed': optimize_7z(file, optimize_7z_contents=optimize_7z_contents)
+		if   type == 'application/x-7z-compressed': optimize_7z(file, optimize_7z_contents=False)
 		elif type in ('application/gzip', 'application/x-gzip'): optimize_gz(file, convert_gzip=convert_gzip)
 		elif type in ('audio/flac', 'audio/x-flac'): optimize_flac(file)
 		elif type == 'image/jpeg': optimize_jpeg(file, strip_jpg=strip_jpg)
-		elif type == 'application/vnd.oasis.opendocument.text': optimize_odt(file, delete_thumbnail=delete_thumbnails)
+		elif type in ('application/vnd.oasis.opendocument.text',
+			'application/vnd.oasis.opendocument.spreadsheet',
+			'application/vnd.oasis.opendocument.graphics',
+			'application/vnd.oasis.opendocument.formula',
+			'application/vnd.oasis.opendocument.presentation'): 
+				optimize_odf(file)
+		#elif type in ('application/msword',
+			#'application/vnd.ms-excel',
+			#'application/vnd.ms-powerpoint',):
+				# Old MS Docs can't be optimized
+		elif type in ('application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'application/vnd.openxmlformats-officedocument.presentationml.presentation'):
+				optimize_ms_office(file)
 		#elif type == 'application/pdf': optimize_pdf(file)
 		elif type == 'image/png': optimize_png(file, convert_png=convert_png)
 		#elif type == 'application/x-rar': optimize_rar(file)
 		#elif type == 'text/plain': optimize_txt(file)
 		elif type == 'audio/x-wav': optimize_wav(file, convert_wav=convert_wav)
 		elif type == 'image/webp': optimize_webp(file)
-		elif type in ('application/zip', 'application/epub+zip'): optimize_zip(file, optimize_zip_contents=optimize_zip_contents)
+		elif type in ('application/zip', 'application/epub+zip'): optimize_zip(file, optimize_zip_contents=False)
 		elif type == 'inode/x-empty':
 			print(f'File "{file}" is empty. Nothing to do.')
 		elif type == 'inode/directory':
@@ -618,6 +690,7 @@ def optimize_file(*files,
 				optimize_file(*new_files,
 					#optimize_7z_contents=optimize_7z_contents,
 					convert_gzip=convert_gzip,
+					delete_thumbnails=delete_thumbnails,
 					strip_jpg=strip_jpg,
 					convert_png=convert_png,
 					convert_wav=convert_wav,
@@ -647,10 +720,11 @@ if __name__ == "__main__":
 		#args.optimize_7z_contents = True
 	elif args.all_optimizations >= 2:
 		args.convert_gzip = True
-		args.delete_thumbnails = True
+		#args.delete_thumbnails = True
 		args.strip_jpg = True
 		args.convert_png = True
 		args.convert_wav = True
+		#args.ignore_compatibility = True
 		#args.optimize_zip_contents = True
 		#args.optimize_7z_contents = True
 	
@@ -659,6 +733,7 @@ if __name__ == "__main__":
 	optimize_file(*args.files, 
 		#optimize_7z_contents=args.optimize_7z_contents,
 		convert_gzip=args.convert_gzip,
+		#delete_thumbnails=args.delete_thumbnails,
 		strip_jpg=args.strip_jpg,
 		convert_png=args.convert_png,
 		convert_wav=args.convert_wav,
