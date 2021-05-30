@@ -10,7 +10,7 @@ Currently optimizes:
 * zip
 * gzip
 * flac (and convert wav to flac)
-* OpenDocument files
+* OpenDocument Formaat and Office Open XML
 
 Additional options may be enabled for destructive optimizations, but they are never enabled by default. See the help (`-h`) for options.
 
