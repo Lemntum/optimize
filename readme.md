@@ -96,7 +96,7 @@ Installing on Windows is simple, but the process of installing dependencies is n
 
 First, install the Python interpreter. Then install the necessary dependencies.
 
-Once installer, the script can be downloaded and run using the Python interpreter.
+Once installed, the script can be downloaded and run using the Python interpreter.
 
 ```
 py -3 optimize.py [files]
