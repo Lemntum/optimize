@@ -130,22 +130,25 @@ else:
 
 def keep_smaller_file(original_file, new_file):
 	# Compare the size of each file. Remove the larger file.
-	if Path(new_file).stat().st_size < Path(original_file).stat().st_size:
-		print("New file was smaller in size.")
-		Path(original_file).unlink()
-	else:
-		# Not deleting old file under all other else conditions is fail safe.
-		print("Original file was smaller or equal in size.")
-		Path(new_file).unlink()
-	
-	print("Smaller file will be kept.")
-	
-	# If original file was removed and new_file still exists, rename to remove temp extension.
-	# TODO: This will rename it to have the wrong file extension sometimes?
-	# Cannot just use the original file to rename because it may have been in a different format.
-	if Path(new_file).exists():
-		Path(new_file).rename(new_file.with_suffix(""))
-	# If original file still exists, then nothing to do. New file should have been removed if it was larger.
+	try:
+		if Path(new_file).stat().st_size < Path(original_file).stat().st_size:
+			print("New file was smaller in size.")
+			Path(original_file).unlink()
+		else:
+			# Not deleting old file under all other else conditions is fail safe.
+			print("Original file was smaller or equal in size.")
+			Path(new_file).unlink()
+		
+		print("Smaller file will be kept.")
+		
+		# If original file was removed and new_file still exists, rename to remove temp extension.
+		# TODO: This will rename it to have the wrong file extension sometimes?
+		# Cannot just use the original file to rename because it may have been in a different format.
+		if Path(new_file).exists():
+			Path(new_file).rename(new_file.with_suffix(""))
+		# If original file still exists, then nothing to do. New file should have been removed if it was larger.
+	except:
+		print("Unable to compare files. Was the original already deleted?")
 
 
 def compress_to_7z(file):
@@ -378,7 +381,10 @@ def optimize_wav(file, convert_wav=False):
 		
 		# Delete original wav file if flac was created successfully.
 		if Path(file).with_suffix('.flac').exists():
-			Path(file).unlink()
+			try:
+				Path(file).unlink()
+			except:
+				pass
 	else:
 		print("Leaving WAV as is.")
 
@@ -528,7 +534,7 @@ if platform.startswith('win32'):
 		f"{localappdata}\\7-Zip\\7z.exe",
 		f"{programfiles32}\\7-Zip\\7z.exe"
 	)
-	# TODO: Update everything below with real paths. Current are filler.
+	
 	flac = check_paths(
 		which('flac.exe'),	
 		#check_registry_location('flac.exe'),
@@ -690,7 +696,7 @@ def optimize_file(*files,
 				optimize_file(*new_files,
 					#optimize_7z_contents=optimize_7z_contents,
 					convert_gzip=convert_gzip,
-					delete_thumbnails=delete_thumbnails,
+					#delete_thumbnails=delete_thumbnails,
 					strip_jpg=strip_jpg,
 					convert_png=convert_png,
 					convert_wav=convert_wav,
